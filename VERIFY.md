@@ -1,0 +1,4 @@
+- [x] All unit tests pass
+- [x] snake_case checker correctly excludes dunders and builtins
+- [x] no_comments uses tokenize (not regex) to avoid false positives in strings
+- [x] Code extraction concatenates multiple blocks
