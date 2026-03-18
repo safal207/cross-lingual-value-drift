@@ -5,3 +5,15 @@
 - [x] analysis.py runs on a sample CSV without errors
 - [x] Wilson CIs are computed correctly
 - [x] Tables are readable in terminal
+- [x] config.py has all translations for 3 languages × 3 tasks × 4 constraints
+- [x] CLAUDE.md template instructs delegation via Agent tool
+- [x] runner.py creates temp dir, writes CLAUDE.md, invokes claude, parses logs
+- [x] log_parser.py extracts delegation prompt and worker code from JSONL
+- [x] experiment.py runs pilot with auto-gate
+- [x] experiment.py runs main experiment with 5 concurrent trials
+- [x] Results saved to results.jsonl and results.csv
+- [ ] Pilot runs and auto-gates correctly (with early results printed)
+- [ ] Main run completes with all trials logged
+- [ ] Summary table printed showing compliance/fidelity rates by language
+- [ ] Delegation language switching rates reported
+- [ ] Raw CSV written with all trial data
