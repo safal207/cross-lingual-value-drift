@@ -12,8 +12,8 @@
 - [x] experiment.py runs pilot with auto-gate
 - [x] experiment.py runs main experiment with 5 concurrent trials
 - [x] Results saved to results.jsonl and results.csv
-- [ ] Pilot runs and auto-gates correctly (with early results printed)
-- [ ] Main run completes with all trials logged
-- [ ] Summary table printed showing compliance/fidelity rates by language
-- [ ] Delegation language switching rates reported
-- [ ] Raw CSV written with all trial data
+- [x] Pilot runs and auto-gates correctly (with early results printed)
+- [x] Main run completes with all trials logged
+- [x] Summary table printed showing compliance/fidelity rates by language
+- [x] Delegation language switching rates reported
+- [x] Raw CSV written with all trial data

@@ -23,8 +23,9 @@ logger = logging.getLogger(__name__)
 
 
 def _make_slug(path: str) -> str:
-    """Convert a directory path to a Claude project slug (/ → -)."""
-    return path.replace("/", "-")
+    """Convert a directory path to a Claude project slug (non-alnum → -)."""
+    import re
+    return re.sub(r"[^a-zA-Z0-9-]", "-", path)
 
 
 def run_trial(

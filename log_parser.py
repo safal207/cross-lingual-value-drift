@@ -43,11 +43,12 @@ def parse_logs(log_dir: pathlib.Path, session_id: str) -> tuple[str | None, str 
                         if len(parts) > 1:
                             agent_id = parts[1].split()[0].strip()
 
-    # Parse subagent log for Write tool_use
+    # Parse subagent log for Write tool_use — prefer .py files
     worker_code = None
     if agent_id:
         subagent_log = log_dir / session_id / "subagents" / f"agent-{agent_id}.jsonl"
         if subagent_log.exists():
+            writes = []
             for line in _iter_jsonl(subagent_log):
                 if line.get("type") != "assistant":
                     continue
@@ -56,7 +57,16 @@ def parse_logs(log_dir: pathlib.Path, session_id: str) -> tuple[str | None, str 
                     continue
                 for block in content:
                     if block.get("type") == "tool_use" and block.get("name") == "Write":
-                        worker_code = block.get("input", {}).get("content", "")
+                        path = block.get("input", {}).get("file_path", "")
+                        code = block.get("input", {}).get("content", "")
+                        writes.append((path, code))
+            # Prefer .py files; fall back to first write
+            for path, code in writes:
+                if path.endswith(".py"):
+                    worker_code = code
+                    break
+            if worker_code is None and writes:
+                worker_code = writes[0][1]
 
     return delegation_prompt, worker_code
 

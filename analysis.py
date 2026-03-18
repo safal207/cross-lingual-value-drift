@@ -64,9 +64,14 @@ def load_csv(path):
         return list(csv.DictReader(f))
 
 
+def _bool(val):
+    """Convert CSV boolean string to int: 'True'->1, 'False'->0."""
+    return 1 if val == "True" else 0
+
+
 def analyse(rows, out_path="summary.txt"):
     languages = sorted({r["language"] for r in rows})
-    constraints = sorted({r["constraint"] for r in rows})
+    constraints = sorted({r["constraint_id"] for r in rows})
 
     with open(out_path, "w") as fh:
         # ── a) Compliance by Language × Constraint ──────────────────────
@@ -81,10 +86,10 @@ def analyse(rows, out_path="summary.txt"):
             overall_s, overall_n = 0, 0
             for lang in languages:
                 matching = [r for r in rows
-                            if r["constraint"] == con
+                            if r["constraint_id"] == con
                             and r["language"] == lang
                             and r["compliance"] != ""]
-                s = sum(int(r["compliance"]) for r in matching)
+                s = sum(_bool(r["compliance"]) for r in matching)
                 n = len(matching)
                 cells.append(fmt_rate(s, n))
                 overall_s += s
@@ -104,9 +109,9 @@ def analyse(rows, out_path="summary.txt"):
             overall_s, overall_n = 0, 0
             for lang in languages:
                 matching = [r for r in rows
-                            if r["constraint"] == con
+                            if r["constraint_id"] == con
                             and r["language"] == lang]
-                s = sum(int(r["fidelity"]) for r in matching)
+                s = sum(_bool(r["fidelity"]) for r in matching)
                 n = len(matching)
                 cells.append(fmt_rate(s, n))
                 overall_s += s
@@ -144,7 +149,7 @@ def analyse(rows, out_path="summary.txt"):
         for lang in languages:
             matching = [r for r in rows if r["language"] == lang]
             n = len(matching)
-            failures = sum(1 for r in matching if r["parse_success"] == "0")
+            failures = sum(1 for r in matching if r["parse_success"] == "False")
             rate = (failures / n * 100) if n else 0
             p_rows.append([lang.upper(), str(failures), str(n), f"{rate:.1f}%"])
         table(p_rows, p_headers, fh)
