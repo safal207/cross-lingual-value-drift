@@ -1,0 +1,7 @@
+- [x] config.py has all translations for 3 languages × 3 tasks × 4 constraints
+- [x] CLAUDE.md template instructs delegation via Agent tool
+- [x] runner.py creates temp dir, writes CLAUDE.md, invokes claude, parses logs
+- [x] log_parser.py extracts delegation prompt and worker code from JSONL
+- [x] experiment.py runs pilot with auto-gate
+- [x] experiment.py runs main experiment with 5 concurrent trials
+- [x] Results saved to results.jsonl and results.csv
