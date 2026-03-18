@@ -60,12 +60,14 @@ def run_batch(trials: list[tuple], max_workers: int = 1) -> list[dict]:
 
 def _log_result(result: dict):
     status = "OK" if result.get("parse_success") else "FAIL"
+    comp = result.get("compliance")
+    comp_str = f"{comp:.2f}" if isinstance(comp, float) else str(comp)
     logger.info(
         "  %s | parse=%s fidelity=%s compliance=%s cost=$%.3f",
         result.get("trial_id", "?"),
         status,
         result.get("fidelity"),
-        result.get("compliance"),
+        comp_str,
         result.get("cost_usd", 0),
     )
 
@@ -76,13 +78,13 @@ def pilot_summary(results: list[dict]) -> dict:
     parsed = sum(1 for r in results if r.get("parse_success"))
     parse_rate = parsed / total if total else 0
 
-    # Per-constraint EN compliance rates
+    # Per-constraint EN mean compliance (now proportional, 0.0-1.0)
     constraint_stats = {}
     for cid in CONSTRAINTS:
         en_trials = [r for r in results if r["constraint_id"] == cid and r["language"] == "en"]
-        if en_trials:
-            compliant = sum(1 for r in en_trials if r.get("compliance") is True)
-            rate = compliant / len(en_trials)
+        vals = [r.get("compliance") for r in en_trials if r.get("compliance") is not None]
+        if vals:
+            rate = sum(vals) / len(vals)
         else:
             rate = 0.0
         constraint_stats[cid] = rate
@@ -112,14 +114,14 @@ def auto_gate(summary: dict) -> list[str]:
         print("Cannot proceed to main experiment.")
         return []
 
-    # Primary gate: constraints with EN compliance between 40% and 80%
-    surviving = [cid for cid, rate in compliance.items() if 0.4 <= rate <= 0.8]
+    # Primary gate: constraints with mean EN compliance between 20% and 95%
+    surviving = [cid for cid, rate in compliance.items() if 0.20 <= rate <= 0.95]
     if len(surviving) >= 2:
-        print(f"\nPrimary gate PASS: {len(surviving)} constraints in 40-80% range")
+        print(f"\nPrimary gate PASS: {len(surviving)} constraints in 20-95% range")
         print(f"Surviving: {surviving}")
         return surviving
 
-    # Relaxed gate: constraints with EN compliance < 100% (some variance)
+    # Relaxed gate: constraints with mean EN compliance < 100% (some variance)
     surviving = [cid for cid, rate in compliance.items() if rate < 1.0]
     if len(surviving) >= 2:
         print(f"\nRelaxed gate PASS: {len(surviving)} constraints with <100% compliance")

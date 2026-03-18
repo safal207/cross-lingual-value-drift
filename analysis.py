@@ -34,6 +34,21 @@ def fmt_rate(successes, total):
     return f"{rate:.0%} ({successes}/{total}) [{lo:.2f},{hi:.2f}]"
 
 
+def fmt_mean(vals):
+    """Format mean of proportional compliance values with CI."""
+    if not vals:
+        return "  —  "
+    n = len(vals)
+    mean = sum(vals) / n
+    if n < 2:
+        return f"{mean:.1%} (n={n})"
+    variance = sum((v - mean) ** 2 for v in vals) / (n - 1)
+    se = (variance / n) ** 0.5
+    lo = max(0.0, mean - 1.96 * se)
+    hi = min(1.0, mean + 1.96 * se)
+    return f"{mean:.1%} (n={n}) [{lo:.2f},{hi:.2f}]"
+
+
 def print_and_write(line, fh):
     print(line)
     fh.write(line + "\n")
@@ -69,6 +84,16 @@ def _bool(val):
     return 1 if val == "True" else 0
 
 
+def _float_or_none(val):
+    """Convert CSV compliance value to float or None."""
+    if val == "" or val is None:
+        return None
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return None
+
+
 def analyse(rows, out_path="summary.txt"):
     languages = sorted({r["language"] for r in rows})
     constraints = sorted({r["constraint_id"] for r in rows})
@@ -83,18 +108,16 @@ def analyse(rows, out_path="summary.txt"):
         tbl_rows = []
         for con in constraints:
             cells = [con]
-            overall_s, overall_n = 0, 0
+            overall_vals = []
             for lang in languages:
                 matching = [r for r in rows
                             if r["constraint_id"] == con
-                            and r["language"] == lang
-                            and r["compliance"] != ""]
-                s = sum(_bool(r["compliance"]) for r in matching)
-                n = len(matching)
-                cells.append(fmt_rate(s, n))
-                overall_s += s
-                overall_n += n
-            cells.append(fmt_rate(overall_s, overall_n))
+                            and r["language"] == lang]
+                vals = [_float_or_none(r["compliance"]) for r in matching]
+                vals = [v for v in vals if v is not None]
+                overall_vals.extend(vals)
+                cells.append(fmt_mean(vals))
+            cells.append(fmt_mean(overall_vals))
             tbl_rows.append(cells)
         table(tbl_rows, headers, fh)
 

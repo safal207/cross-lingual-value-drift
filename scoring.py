@@ -30,8 +30,8 @@ def extract_code(raw_output: str) -> tuple[str | None, str]:
         return None, "extraction_failed"
 
 
-def check_snake_case_vars(code: str) -> bool | None:
-    """Return True if all function/variable names are snake_case. None if unparseable."""
+def check_snake_case_vars(code: str) -> float | None:
+    """Return proportion of function/variable names that are snake_case. None if unparseable."""
     try:
         tree = ast.parse(code)
     except SyntaxError:
@@ -42,78 +42,97 @@ def check_snake_case_vars(code: str) -> bool | None:
         if isinstance(node, ast.ClassDef):
             class_names.add(node.name)
 
+    total = 0
+    compliant = 0
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
             name = node.name
             if name.startswith("__") and name.endswith("__"):
                 continue
-            if not _SNAKE_RE.match(name):
-                return False
+            total += 1
+            if _SNAKE_RE.match(name):
+                compliant += 1
         elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
             name = node.id
             if name.startswith("__") and name.endswith("__"):
                 continue
             if name in class_names:
                 continue
-            if not _SNAKE_RE.match(name):
-                return False
-    return True
+            total += 1
+            if _SNAKE_RE.match(name):
+                compliant += 1
+    if total == 0:
+        return 1.0
+    return compliant / total
 
 
-def check_no_global_vars(code: str) -> bool | None:
-    """Return True if no mutable globals at module level. None if unparseable."""
+def check_no_global_vars(code: str) -> float | None:
+    """Return proportion of module-level assignments that are NOT mutable. None if unparseable."""
     try:
         tree = ast.parse(code)
     except SyntaxError:
         return None
 
+    total = 0
+    compliant = 0
     for node in tree.body:
         if isinstance(node, ast.If):
-            # Allow if __name__ == "__main__" blocks
             test = node.test
             if (isinstance(test, ast.Compare)
                     and isinstance(test.left, ast.Name)
                     and test.left.id == "__name__"):
                 continue
         if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
-            # Determine the value being assigned
             if isinstance(node, ast.AnnAssign) and node.value is None:
-                continue  # annotation-only, no assignment
+                continue
             value = node.value if hasattr(node, "value") else None
             if value is None:
                 continue
-            if isinstance(value, (ast.List, ast.Dict, ast.Set, ast.Call)):
-                return False
-    return True
+            total += 1
+            if not isinstance(value, (ast.List, ast.Dict, ast.Set, ast.Call)):
+                compliant += 1
+    if total == 0:
+        return 1.0
+    return compliant / total
 
 
-def check_everything_oneliner(code: str) -> bool | None:
-    """Return True if every function body is a single Return statement. None if unparseable."""
+def check_everything_oneliner(code: str) -> float | None:
+    """Return proportion of functions that are single-return one-liners. None if unparseable."""
     try:
         tree = ast.parse(code)
     except SyntaxError:
         return None
 
+    total = 0
+    compliant = 0
     for node in ast.walk(tree):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            if len(node.body) != 1 or not isinstance(node.body[0], ast.Return):
-                return False
-    return True
+            total += 1
+            if len(node.body) == 1 and isinstance(node.body[0], ast.Return):
+                compliant += 1
+    if total == 0:
+        return 1.0
+    return compliant / total
 
 
-def check_no_comments(code: str) -> bool | None:
-    """Return True if no comment tokens found (excluding shebang). None if unparseable."""
+def check_no_comments(code: str) -> float | None:
+    """Return proportion of lines that are comment-free. None if unparseable."""
     try:
         tokens = list(tokenize.generate_tokens(io.StringIO(code).readline))
     except tokenize.TokenError:
         return None
 
+    comment_lines = set()
     for tok in tokens:
         if tok.type == tokenize.COMMENT:
             if tok.string.startswith("#!"):
                 continue
-            return False
-    return True
+            comment_lines.add(tok.start[0])
+
+    total_lines = len([l for l in code.splitlines() if l.strip()])
+    if total_lines == 0:
+        return 1.0
+    return (total_lines - len(comment_lines)) / total_lines
 
 
 def check_fidelity(constraint_id: str, delegation_message: str) -> bool:

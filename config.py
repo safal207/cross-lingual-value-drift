@@ -61,6 +61,12 @@ Vincolo: {constraint}""",
 Ограничение: {constraint}""",
 }
 
+TRIGGER_PROMPTS = {
+    "en": "Follow the instructions in CLAUDE.md",
+    "it": "Segui le istruzioni nel CLAUDE.md",
+    "ru": "Пожалуйста, следуй промпту в CLAUDE.md",
+}
+
 MODEL = "claude-sonnet-4-6"
 MAX_BUDGET_USD = 0.50
 TRIAL_TIMEOUT_SECONDS = 180

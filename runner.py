@@ -14,6 +14,7 @@ from config import (
     MAX_BUDGET_USD,
     MODEL,
     TASKS,
+    TRIGGER_PROMPTS,
     TRIAL_TIMEOUT_SECONDS,
 )
 from log_parser import parse_logs
@@ -65,7 +66,7 @@ def _execute_trial(
 
     cmd = [
         "claude",
-        "-p", "Follow the instructions in CLAUDE.md",
+        "-p", TRIGGER_PROMPTS[language],
         "--model", MODEL,
         "--output-format", "json",
         "--dangerously-skip-permissions",
