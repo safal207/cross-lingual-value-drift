@@ -1,0 +1,13 @@
+trial_id,language,task,constraint,rep,delegation_lang,fidelity,compliance,parse_success,extraction_method,cost_usd
+t001,en,cli_tool,snake_case_vars,1,en,1,1,1,fenced_block,0.023
+t002,en,data_pipeline,no_global_vars,2,en,1,1,1,fenced_block,0.031
+t003,en,rest_api,everything_oneliner,3,en,0,0,1,raw_parseable,0.028
+t004,it,cli_tool,snake_case_vars,1,it,1,1,1,fenced_block,0.025
+t005,it,data_pipeline,no_comments,2,en,1,0,1,fenced_block,0.029
+t006,it,rest_api,everything_oneliner,3,it,0,,1,raw_parseable,0.027
+t007,ru,cli_tool,no_global_vars,1,ru,1,1,1,fenced_block,0.024
+t008,ru,data_pipeline,snake_case_vars,2,en,1,1,1,fenced_block,0.032
+t009,ru,rest_api,no_comments,3,ru,0,0,0,extraction_failed,0.026
+t010,ru,cli_tool,everything_oneliner,4,ru,1,1,1,raw_parseable,0.022
+t011,en,cli_tool,no_comments,5,en,1,1,1,fenced_block,0.030
+t012,it,data_pipeline,snake_case_vars,4,it,1,1,1,fenced_block,0.028

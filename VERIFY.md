@@ -2,3 +2,6 @@
 - [x] snake_case checker correctly excludes dunders and builtins
 - [x] no_comments uses tokenize (not regex) to avoid false positives in strings
 - [x] Code extraction concatenates multiple blocks
+- [x] analysis.py runs on a sample CSV without errors
+- [x] Wilson CIs are computed correctly
+- [x] Tables are readable in terminal
