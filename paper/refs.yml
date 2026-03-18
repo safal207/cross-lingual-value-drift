@@ -1,0 +1,74 @@
+air2026:
+  type: article
+  title: "Value Drift in Agent Chains: Which Safety Constraints Survive Delegation?"
+  author:
+    - Air
+  date: 2026-03-13
+  parent:
+    type: periodical
+    title: Palisade Research
+
+anthropic2026claudecode:
+  type: web
+  title: "Claude Code: An Agentic Coding Tool"
+  author:
+    - Anthropic
+  date: 2026
+  url: https://docs.anthropic.com/en/docs/claude-code
+
+ahuja2023mega:
+  type: article
+  title: "MEGA: Multilingual Evaluation of Generative AI"
+  author:
+    - Ahuja, Kabir
+    - Diddee, Harshita
+    - Hada, Rishav
+    - Ochieng, Millicent
+    - Ramesh, Krithika
+    - Jain, Prachi
+    - Nambi, Akshay
+    - Ganu, Tanuja
+    - Segal, Sameer
+    - Axmed, Maxamed
+    - Bali, Kalika
+    - Sitaram, Sunayana
+  date: 2023
+  parent:
+    type: proceedings
+    title: "Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing"
+
+zheng2023codegeex:
+  type: article
+  title: "CodeGeeX: A Pre-Trained Model for Code Generation with Multilingual Benchmarking on HumanEval-X"
+  author:
+    - Zheng, Qinkai
+    - Xia, Xiao
+    - Zou, Xu
+    - Dong, Yuxiao
+    - Wang, Shan
+    - Xue, Yufei
+    - Wang, Zihan
+    - Shen, Lei
+    - Wang, Andi
+    - Li, Yang
+    - Su, Teng
+    - Yang, Zhilin
+    - Tang, Jie
+  date: 2023
+  parent:
+    type: proceedings
+    title: "Proceedings of the 29th ACM SIGKDD Conference on Knowledge Discovery and Data Mining"
+
+jensen1976:
+  type: article
+  title: "Theory of the Firm: Managerial Behavior, Agency Costs and Ownership Structure"
+  author:
+    - Jensen, Michael C.
+    - Meckling, William H.
+  date: 1976
+  parent:
+    type: periodical
+    title: "Journal of Financial Economics"
+  volume: 3
+  issue: 4
+  page-range: 305-360
