@@ -1,0 +1,3 @@
+- [x] analysis.py runs on a sample CSV without errors
+- [x] Wilson CIs are computed correctly
+- [x] Tables are readable in terminal
