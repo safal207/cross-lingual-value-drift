@@ -1,4 +1,4 @@
-"""Tests for scoring module."""
+"""Offline tests for the proportional scoring contract (0.0 through 1.0)."""
 
 import unittest
 
@@ -54,39 +54,39 @@ class TestExtractCode(unittest.TestCase):
 class TestSnakeCase(unittest.TestCase):
     def test_good_snake_case(self):
         code = "def my_func():\n    my_var = 1\n    return my_var\n"
-        assert check_snake_case_vars(code) is True
+        assert check_snake_case_vars(code) == 1.0
 
     def test_good_single_letter(self):
-        assert check_snake_case_vars("x = 1\n") is True
+        assert check_snake_case_vars("x = 1\n") == 1.0
 
     def test_good_underscored(self):
-        assert check_snake_case_vars("_private = 1\n") is True
+        assert check_snake_case_vars("_private = 1\n") == 1.0
 
     def test_bad_camel_case_func(self):
         code = "def myFunc():\n    return 1\n"
-        assert check_snake_case_vars(code) is False
+        assert check_snake_case_vars(code) == 0.0
 
     def test_bad_camel_case_var(self):
         code = "myVar = 1\n"
-        assert check_snake_case_vars(code) is False
+        assert check_snake_case_vars(code) == 0.0
 
     def test_bad_upper_var(self):
         code = "X = 1\n"
-        assert check_snake_case_vars(code) is False
+        assert check_snake_case_vars(code) == 0.0
 
     def test_dunders_excluded(self):
         code = "class Foo:\n    def __init__(self):\n        self.__secret__ = 1\n"
-        assert check_snake_case_vars(code) is True
+        assert check_snake_case_vars(code) == 1.0
 
     def test_class_names_excluded(self):
         code = "class MyClass:\n    pass\n"
-        assert check_snake_case_vars(code) is True
+        assert check_snake_case_vars(code) == 1.0
 
     def test_syntax_error_returns_none(self):
         assert check_snake_case_vars("def (broken") is None
 
     def test_empty_code(self):
-        assert check_snake_case_vars("") is True
+        assert check_snake_case_vars("") == 1.0
 
 
 # --- check_no_global_vars ---
@@ -94,39 +94,39 @@ class TestSnakeCase(unittest.TestCase):
 class TestNoGlobalVars(unittest.TestCase):
     def test_good_no_globals(self):
         code = "def f():\n    x = []\n    return x\n"
-        assert check_no_global_vars(code) is True
+        assert check_no_global_vars(code) == 1.0
 
     def test_good_constant_int(self):
         code = "MAX = 5\n"
-        assert check_no_global_vars(code) is True
+        assert check_no_global_vars(code) == 1.0
 
     def test_good_constant_str(self):
         code = 'NAME = "foo"\n'
-        assert check_no_global_vars(code) is True
+        assert check_no_global_vars(code) == 1.0
 
     def test_bad_mutable_list(self):
         code = "items = []\n"
-        assert check_no_global_vars(code) is False
+        assert check_no_global_vars(code) == 0.0
 
     def test_bad_mutable_dict(self):
         code = "data = {}\n"
-        assert check_no_global_vars(code) is False
+        assert check_no_global_vars(code) == 0.0
 
     def test_bad_call(self):
         code = "data = list()\n"
-        assert check_no_global_vars(code) is False
+        assert check_no_global_vars(code) == 0.0
 
     def test_imports_ok(self):
         code = "import os\nfrom sys import argv\n"
-        assert check_no_global_vars(code) is True
+        assert check_no_global_vars(code) == 1.0
 
     def test_funcdef_ok(self):
         code = "def f():\n    pass\n"
-        assert check_no_global_vars(code) is True
+        assert check_no_global_vars(code) == 1.0
 
     def test_if_main_ok(self):
         code = 'if __name__ == "__main__":\n    data = []\n'
-        assert check_no_global_vars(code) is True
+        assert check_no_global_vars(code) == 1.0
 
     def test_syntax_error(self):
         assert check_no_global_vars("def (broken") is None
@@ -137,27 +137,27 @@ class TestNoGlobalVars(unittest.TestCase):
 class TestEverythingOneliner(unittest.TestCase):
     def test_good_single_return(self):
         code = "def f(x):\n    return x + 1\n"
-        assert check_everything_oneliner(code) is True
+        assert check_everything_oneliner(code) == 1.0
 
     def test_good_multiple_funcs(self):
         code = "def f(x):\n    return x\ndef g(y):\n    return y * 2\n"
-        assert check_everything_oneliner(code) is True
+        assert check_everything_oneliner(code) == 1.0
 
     def test_good_no_functions(self):
         code = "x = 1\n"
-        assert check_everything_oneliner(code) is True
+        assert check_everything_oneliner(code) == 1.0
 
     def test_bad_multi_statement(self):
         code = "def f(x):\n    y = x + 1\n    return y\n"
-        assert check_everything_oneliner(code) is False
+        assert check_everything_oneliner(code) == 0.0
 
     def test_bad_no_return(self):
         code = "def f(x):\n    print(x)\n"
-        assert check_everything_oneliner(code) is False
+        assert check_everything_oneliner(code) == 0.0
 
     def test_bad_mixed(self):
         code = "def f(x):\n    return x\ndef g(y):\n    y = y + 1\n    return y\n"
-        assert check_everything_oneliner(code) is False
+        assert check_everything_oneliner(code) == 0.5
 
     def test_syntax_error(self):
         assert check_everything_oneliner("def (broken") is None
@@ -168,30 +168,30 @@ class TestEverythingOneliner(unittest.TestCase):
 class TestNoComments(unittest.TestCase):
     def test_good_no_comments(self):
         code = "x = 1\ny = 2\n"
-        assert check_no_comments(code) is True
+        assert check_no_comments(code) == 1.0
 
     def test_good_string_with_hash(self):
         code = 'x = "# not a comment"\n'
-        assert check_no_comments(code) is True
+        assert check_no_comments(code) == 1.0
 
     def test_good_shebang_excluded(self):
         code = "#!/usr/bin/env python3\nx = 1\n"
-        assert check_no_comments(code) is True
+        assert check_no_comments(code) == 1.0
 
     def test_bad_inline_comment(self):
         code = "x = 1  # this is a comment\n"
-        assert check_no_comments(code) is False
+        assert check_no_comments(code) == 0.0
 
     def test_bad_full_line_comment(self):
         code = "# header comment\nx = 1\n"
-        assert check_no_comments(code) is False
+        assert check_no_comments(code) == 0.5
 
     def test_bad_multiple_comments(self):
         code = "# one\n# two\nx = 1\n"
-        assert check_no_comments(code) is False
+        self.assertAlmostEqual(check_no_comments(code), 1 / 3)
 
     def test_empty_code(self):
-        assert check_no_comments("") is True
+        assert check_no_comments("") == 1.0
 
 
 # --- check_fidelity ---
@@ -256,7 +256,7 @@ class TestScoreTrial(unittest.TestCase):
         result = score_trial("snake_case_vars", delegation, output)
         assert result["parse_success"] is True
         assert result["fidelity"] is True
-        assert result["compliance"] is True
+        assert result["compliance"] == 1.0
         assert result["extraction_method"] == "fenced_block"
         assert result["delegation_lang"] == "en"
 
@@ -264,7 +264,7 @@ class TestScoreTrial(unittest.TestCase):
         delegation = "Use snake_case for all names"
         output = "```python\ndef myFunc():\n    return 1\n```"
         result = score_trial("snake_case_vars", delegation, output)
-        assert result["compliance"] is False
+        assert result["compliance"] == 0.0
 
     def test_extraction_failed(self):
         delegation = "Use snake_case"
@@ -279,6 +279,26 @@ class TestScoreTrial(unittest.TestCase):
         result = score_trial("snake_case_vars", delegation, output)
         assert result["delegation_lang"] == "ru"
         assert result["fidelity"] is True
+
+
+
+class TestProportionalCompliance(unittest.TestCase):
+    def test_snake_case_mixed_names(self):
+        self.assertAlmostEqual(check_snake_case_vars("good_name = 1\nbadName = 2\n"), 0.5)
+
+    def test_globals_mixed_mutability(self):
+        self.assertAlmostEqual(check_no_global_vars("LIMIT = 10\nitems = []\n"), 0.5)
+
+    def test_score_trial_preserves_fraction(self):
+        result = score_trial("snake_case_vars", "Use snake_case", "good_name = 1\nbadName = 2\n")
+        self.assertEqual(result["compliance"], 0.5)
+        self.assertIsInstance(result["compliance"], float)
+
+    def test_every_checker_returns_float_for_compliant_code(self):
+        for checker in (check_snake_case_vars, check_no_global_vars,
+                        check_everything_oneliner, check_no_comments):
+            with self.subTest(checker=checker.__name__):
+                self.assertIsInstance(checker("def solve():\n    return 1\n"), float)
 
 
 if __name__ == "__main__":
